@@ -14,9 +14,8 @@ import { Toaster } from "@/app/components/ui/toaster"
 export default function BooksPage() {
   const { toast } = useToast()
   const { paquetes, setPaquetes } = useState([])
-  const { loading, setLoading } = useState(true)
-  const { error, setError } = useState(null)
-  const { pedidos, setPedidos } = useState<{ [key: string]: boolean}>({})
+  const { setLoading } = useState(true)
+  const { setError } = useState(null)
   const [carrito, setCarrito] = useState<{ [key: string]: boolean }>({})
   const [carritoCount, setCarritoCount] = useState(0)
 

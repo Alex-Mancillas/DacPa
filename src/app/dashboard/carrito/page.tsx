@@ -86,7 +86,7 @@ const useCarritoSimulado = () => {
 export default function CarritoPage() {
   const { toast } = useToast()
   const { items, cargando, eliminarItem, actualizarCantidad, vaciarCarrito, calcularTotal } = useCarritoSimulado()
-  const [metodo, setMetodo] = useState("tarjeta")
+  const [ setMetodo] = useState("tarjeta")
   const [estudiante, setEstudiante] = useState("")
   const [procesando, setProcesando] = useState(false)
   const [completado, setCompletado] = useState(false)

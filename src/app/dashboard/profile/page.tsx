@@ -1,7 +1,6 @@
 // Importa componentes necesarios
 import InfoRow from '@/app/components/InfoRow'; // Componente para mostrar una fila de información
 import InformationSection from '@/app/components/InformationSection'; // Componente para agrupar secciones de información
-import { User, Phone, Mail, MapPin } from 'lucide-react'; // Importa íconos de lucide-react
 
 // Define la interfaz para los datos del padre
 interface ParentData {
@@ -47,16 +46,6 @@ export default function ProfilePage() {
     mother: 'Maria González López'
   };
 
-  // Etiquetas para los datos del estudiante
-  const studentDataLabels: Record<keyof StudentData, string> = {
-    fullName: 'Nombre completo',
-    enrollmentId: 'Matrícula',
-    grade: 'Grado',
-    group: 'Grupo',
-    birthDate: 'Fecha de nacimiento',
-    father: 'Padre',
-    mother: 'Madre'
-  };
 
   return (
     <div className="bg-white p-6"> {/* Contenedor principal con fondo blanco y padding */}

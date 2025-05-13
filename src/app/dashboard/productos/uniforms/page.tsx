@@ -199,23 +199,6 @@ export default function UniformesPage() {
     }
   }
 
-  // Verificar si hay stock para la talla seleccionada
-  const hayStock = (uniforme: Uniforme, talla: string) => {
-    if (!talla) return false
-    return uniforme.stock[talla] > 0
-  }
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="flex flex-col items-center space-y-4">
-          <Loader2 className="h-12 w-12 animate-spin text-pink-600" />
-          <p className="text-lg">Cargando catálogo de uniformes...</p>
-        </div>
-      </div>
-    )
-  }
-
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-screen p-6">

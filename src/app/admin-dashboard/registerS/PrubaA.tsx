@@ -32,7 +32,7 @@ export default function HistoriaDesarrolloMiniForm() {
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value, type, checked } = e.target as HTMLInputElement;
+    const { name, value, checked } = e.target as HTMLInputElement;
 
     if (name === "vacunas") {
       setFormData(prev => {

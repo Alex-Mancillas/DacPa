@@ -3,20 +3,16 @@
 import { SetStateAction, useState } from "react"; // Importa el hook useState de React
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/app/components/ui/card"; // Importa componentes de tarjeta
 import { Button } from "@/app/components/ui/button"; // Importa el componente de botón
-import { Input } from "@/app/components/ui/input"; // Importa el componente de entrada
 import { Label } from "@/app/components/ui/label"; // Importa el componente de etiqueta
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/app/components/ui/select"; // Importa componentes de selección
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs"; // Importa componentes de pestañas
 import { CreditCard, CheckCircle2 } from "lucide-react"; // Importa íconos de lucide-react
 import { createCheckoutSession } from '@/app/actions'
-import { useToast } from '@/app/components/ui/use-toast'
 
 
 // Componente principal para la página de colegiatura
 export default function ColegiaturaPage() {
   // Estados para manejar la información del formulario
   const [estudiante, setEstudiante] = useState(""); // Estado para el estudiante seleccionado
-  const [metodo, setMetodo] = useState("tarjeta"); // Estado para el método de pago
   const [monto, setMonto] = useState("1500.00"); // Estado para el monto a pagar
   const [pagando, setPagando] = useState(false); // Estado para indicar si se está procesando el pago
   const [pagado, setPagado] = useState(false); // Estado para indicar si el pago ha sido realizado

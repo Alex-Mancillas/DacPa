@@ -271,32 +271,6 @@ export default function RegistrerStudent() {
       if (error) throw error;
 
       alert("✅ Antecedentes prenatales y postnatales registrados correctamente");
-        // 6) Insertar Desarrollo del niño
-        const datosAGuardar = {
-          id_alumno: 3,
-          talla: formData.talla,
-          peso: formData.peso,
-          malformaciones: formData.tieneMalformacion === "Sí" ? formData.malformaciones : "",
-          enfermedades: formData.enfermedades,
-          alergias: formData.alergias,
-          vacunas: formData.vacunas.join(", "),
-          servicio_medico: formData.tieneServicioMedico === "Sí" ? formData.servicio_medico : "",
-          control_esfinteres_diurno: formData.control_esfinteres_diurno,
-          control_esfinteres_nocturno: formData.control_esfinteres_nocturno,
-          horas_sueño: parseInt(formData.horas_sueño, 10),
-          tipo_sueño: formData.tipo_sueño,
-          tipo_cama: formData.comparteCama === "Sí" ? formData.tipo_cama : "Duerme solo",
-          desayuno: formData.desayuno,
-          comida: formData.comida,
-          cena: formData.cena,
-          edad_camino: formData.edad_camino,
-          edad_hablo: formData.edad_hablo,
-          lateralidad: formData.lateralidad,
-          lenguaje: formData.lenguaje,
-          // 7) Insertar Observaciones
-          observacionesAlumno: formData.observacionesAlumno,    
-        };
-        
 
       alert(`✅ Alumno registrado con éxito (ID: ${newId})`);
 
