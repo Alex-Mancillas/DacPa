@@ -4,7 +4,7 @@ import * as React from "react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { ChevronDown, Package, Plus, Search, Trash } from "lucide-react"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/app/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card"
 import { Button } from "@/app/components/ui/button"
 import { Input } from "@/app/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/app/components/ui/table"
@@ -34,7 +34,6 @@ type Merma = {
 };
 
 export default function MermasPage() {
-  const router = useRouter()
   const { toast } = useToast()
   const [searchTerm, setSearchTerm] = useState("")
   const [loading, setLoading] = useState(false)
@@ -206,6 +205,54 @@ export default function MermasPage() {
     return sum + (merma.Articulo?.precio_adquisicion || 0) * merma.cantidad
   }, 0)
 
+  const contenidoTabla = cargando ? (
+      <TableRow>
+        <TableCell colSpan={7} className="text-center py-8">
+          Cargando mermas...
+        </TableCell>
+      </TableRow>
+    ) : filtroMermas.length === 0 ? (
+      <TableRow>
+        <TableCell colSpan={7} className="text-center py-8">
+          No se encontraron mermas
+        </TableCell>
+      </TableRow>
+    ) : (
+      filtroMermas.map((merma) => (
+        <TableRow key={merma.id_merma}>
+          <TableCell className="font-medium">{merma.id_merma}</TableCell>
+          <TableCell>{new Date(merma.fecha).toLocaleDateString()}</TableCell>
+          <TableCell>
+            {merma.Articulo?.nombre || `ID: ${merma.id_articulo}`}
+          </TableCell>
+          <TableCell>{merma.cantidad}</TableCell>
+          <TableCell>
+            {merma.Usuario?.nombre || `ID: ${merma.id_usuario}`}
+          </TableCell>
+          <TableCell className="max-w-[200px] truncate">
+            {merma.motivo || "Sin motivo"}
+          </TableCell>
+          <TableCell className="text-right">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem 
+                  onClick={() => handleDelete(merma.id_merma)}
+                  className="text-red-600"
+                >
+                  Eliminar
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </TableCell>
+        </TableRow>
+      ))
+    );
+
   return (
     <div className="p-6 space-y-6">
       {/* Encabezado y botón de nueva merma */}
@@ -376,53 +423,7 @@ export default function MermasPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {cargando ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
-                    Cargando mermas...
-                  </TableCell>
-                </TableRow>
-              ) : filtroMermas.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
-                    No se encontraron mermas
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filtroMermas.map((merma) => (
-                  <TableRow key={merma.id_merma}>
-                    <TableCell className="font-medium">{merma.id_merma}</TableCell>
-                    <TableCell>{new Date(merma.fecha).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      {merma.Articulo?.nombre || `ID: ${merma.id_articulo}`}
-                    </TableCell>
-                    <TableCell>{merma.cantidad}</TableCell>
-                    <TableCell>
-                      {merma.Usuario?.nombre || `ID: ${merma.id_usuario}`}
-                    </TableCell>
-                    <TableCell className="max-w-[200px] truncate">
-                      {merma.motivo || "Sin motivo"}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <ChevronDown className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem 
-                            onClick={() => handleDelete(merma.id_merma)}
-                            className="text-red-600"
-                          >
-                            Eliminar
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
+              {contenidoTabla}
             </TableBody>
           </Table>
         </CardContent>
