@@ -2,7 +2,6 @@ import React from 'react'
 import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import PerfilPage from '@/app/admin-dashboard/perfil-admin/page'
 import { useRouter } from 'next/navigation'
-import { useToast } from '@/app/components/ui/use-toast'
 import { supabase } from '@/app/lib/supabaseclient'
 
 // Mocks
