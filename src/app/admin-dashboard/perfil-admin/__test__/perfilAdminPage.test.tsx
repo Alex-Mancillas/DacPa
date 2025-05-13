@@ -9,25 +9,26 @@ import { supabase } from '@/app/lib/supabaseclient'
 jest.mock('@/app/lib/supabaseclient', () => ({
   supabase: {
     auth: {
-      getUser: jest.fn()
+      getUser: jest.fn(),
     },
-    from: jest.fn(() => ({
-      select: jest.fn().mockReturnThis(),
-      eq: jest.fn().mockReturnThis(),
-      single: jest.fn()
-    }))
-  }
+    from: jest.fn(),
+  },
 }))
 
 jest.mock('next/navigation', () => ({
-  useRouter: jest.fn()
+  useRouter: jest.fn(),
 }))
 
 jest.mock('@/app/components/ui/use-toast', () => ({
   useToast: () => ({
-    toast: jest.fn()
-  })
+    toast: jest.fn(),
+  }),
 }))
+
+// 🔧 Helpers para reducir anidación
+const mockSingle = (perfilData: any) => () => Promise.resolve({ data: perfilData })
+const mockEq = (perfilData: any) => () => ({ single: mockSingle(perfilData) })
+const mockSelect = (perfilData: any) => () => ({ eq: mockEq(perfilData) })
 
 describe('PerfilPage', () => {
   const mockPush = jest.fn()
@@ -38,22 +39,19 @@ describe('PerfilPage', () => {
   })
 
   it('muestra el texto "Cargando perfil..." inicialmente', async () => {
-    (supabase.auth.getUser as jest.Mock).mockResolvedValue({
-      data: { user: { id: '123', email: 'test@example.com' } }
+    const perfil = {
+      nombre_completo: 'Juan Pérez',
+      telefono: '1234567890',
+      departamento: 'TI',
+      rol: 'admin',
+    }
+
+    ;(supabase.auth.getUser as jest.Mock).mockResolvedValue({
+      data: { user: { id: '123', email: 'test@example.com' } },
     })
+
     ;(supabase.from as any).mockReturnValue({
-      select: () => ({
-        eq: () => ({
-          single: () => Promise.resolve({
-            data: {
-              nombre_completo: 'Juan Pérez',
-              telefono: '1234567890',
-              departamento: 'TI',
-              rol: 'admin'
-            }
-          })
-        })
-      })
+      select: mockSelect(perfil),
     })
 
     render(<PerfilPage />)
@@ -65,22 +63,19 @@ describe('PerfilPage', () => {
   })
 
   it('muestra los datos del perfil correctamente', async () => {
-    (supabase.auth.getUser as jest.Mock).mockResolvedValue({
-      data: { user: { id: '123', email: 'test@example.com' } }
+    const perfil = {
+      nombre_completo: 'Ana López',
+      telefono: '987654321',
+      departamento: 'Recursos Humanos',
+      rol: 'user',
+    }
+
+    ;(supabase.auth.getUser as jest.Mock).mockResolvedValue({
+      data: { user: { id: '123', email: 'test@example.com' } },
     })
+
     ;(supabase.from as any).mockReturnValue({
-      select: () => ({
-        eq: () => ({
-          single: () => Promise.resolve({
-            data: {
-              nombre_completo: 'Ana López',
-              telefono: '987654321',
-              departamento: 'Recursos Humanos',
-              rol: 'user'
-            }
-          })
-        })
-      })
+      select: mockSelect(perfil),
     })
 
     render(<PerfilPage />)
@@ -95,22 +90,19 @@ describe('PerfilPage', () => {
   })
 
   it('permite activar el modo de edición', async () => {
-    (supabase.auth.getUser as jest.Mock).mockResolvedValue({
-      data: { user: { id: '123', email: 'test@example.com' } }
+    const perfil = {
+      nombre_completo: 'Laura Gómez',
+      telefono: '111222333',
+      departamento: 'Contabilidad',
+      rol: 'admin',
+    }
+
+    ;(supabase.auth.getUser as jest.Mock).mockResolvedValue({
+      data: { user: { id: '123', email: 'test@example.com' } },
     })
+
     ;(supabase.from as any).mockReturnValue({
-      select: () => ({
-        eq: () => ({
-          single: () => Promise.resolve({
-            data: {
-              nombre_completo: 'Laura Gómez',
-              telefono: '111222333',
-              departamento: 'Contabilidad',
-              rol: 'admin'
-            }
-          })
-        })
-      })
+      select: mockSelect(perfil),
     })
 
     render(<PerfilPage />)
