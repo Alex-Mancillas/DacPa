@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import EditarArticuloPage from '@/app/admin-dashboard/inventario/articulos/editar/[id]/page'
 import { useRouter, useParams } from 'next/navigation'
 import { supabase } from '@/app/lib/supabaseclient'
@@ -13,11 +13,7 @@ jest.mock('next/navigation', () => ({
 
 jest.mock('@/app/lib/supabaseclient', () => ({
   supabase: {
-    from: jest.fn().mockReturnThis(),
-    select: jest.fn().mockReturnThis(),
-    eq: jest.fn().mockReturnThis(),
-    single: jest.fn(),
-    update: jest.fn().mockReturnThis(),
+    from: jest.fn(),
   },
 }))
 
@@ -45,21 +41,19 @@ const mockArticulo = {
   ultima_actualizacion: '2023-01-01T00:00:00Z',
 }
 
+// Funciones auxiliares para reducir la anidación
+const mockSingle = (data: any, error: any) => () => ({ data, error })
+const mockEq = (data: any, error: any) => () => ({ single: mockSingle(data, error) })
+const mockSelect = (data: any, error: any) => () => ({ eq: mockEq(data, error) })
+
 describe('EditarArticuloPage', () => {
   const mockPush = jest.fn()
   const mockToast = jest.fn()
 
   beforeEach(() => {
-    // Configuración inicial de los mocks
-    ;(useRouter as jest.Mock).mockReturnValue({
-      push: mockPush,
-    })
-    ;(useParams as jest.Mock).mockReturnValue({
-      id: '1',
-    })
-    ;(useToast as jest.Mock).mockReturnValue({
-      toast: mockToast,
-    })
+    ;(useRouter as jest.Mock).mockReturnValue({ push: mockPush })
+    ;(useParams as jest.Mock).mockReturnValue({ id: '1' })
+    ;(useToast as jest.Mock).mockReturnValue({ toast: mockToast })
   })
 
   afterEach(() => {
@@ -67,34 +61,19 @@ describe('EditarArticuloPage', () => {
   })
 
   it('debe mostrar el estado de carga inicial', () => {
-    ;(supabase.from as jest.Mock).mockImplementation(() => ({
-      select: () => ({
-        eq: () => ({
-          single: () => ({
-            data: null,
-            error: null,
-          }),
-        }),
-      }),
-    }))
+    ;(supabase.from as jest.Mock).mockReturnValue({
+      select: mockSelect(null, null),
+    })
 
     render(<EditarArticuloPage />)
     expect(screen.getByText('Cargando artículo...')).toBeInTheDocument()
   })
 
-
   it('debe manejar errores al cargar el artículo', async () => {
     const errorMessage = 'Error de prueba al cargar'
-    ;(supabase.from as jest.Mock).mockImplementation(() => ({
-      select: () => ({
-        eq: () => ({
-          single: () => ({
-            data: null,
-            error: { message: errorMessage },
-          }),
-        }),
-      }),
-    }))
+    ;(supabase.from as jest.Mock).mockReturnValue({
+      select: mockSelect(null, { message: errorMessage }),
+    })
 
     render(<EditarArticuloPage />)
 
@@ -109,16 +88,9 @@ describe('EditarArticuloPage', () => {
   })
 
   it('debe mostrar el mensaje de artículo no encontrado', async () => {
-    ;(supabase.from as jest.Mock).mockImplementation(() => ({
-      select: () => ({
-        eq: () => ({
-          single: () => ({
-            data: null,
-            error: null,
-          }),
-        }),
-      }),
-    }))
+    ;(supabase.from as jest.Mock).mockReturnValue({
+      select: mockSelect(null, null),
+    })
 
     render(<EditarArticuloPage />)
 
