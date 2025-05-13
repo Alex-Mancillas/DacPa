@@ -1,9 +1,7 @@
 'use client';
 
-import { supabase } from '@/app/lib/supabaseclient';
-import { useState, useEffect } from 'react';
-import React from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
+import { useConveniosActivos, useCrearConvenio, Convenio } from './useConvenios';
 
 export default function ConveniosPage() {
   const [tab, setTab] = useState('crear');
@@ -36,33 +34,7 @@ export default function ConveniosPage() {
 }
 
 function TablaConveniosActivos() {
-  const [convenios, setConvenios] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchConvenios = async () => {
-      const { data, error } = await supabase.from('convenios').select('*');
-      if (!error) setConvenios(data || []);
-      setLoading(false);
-    };
-
-    fetchConvenios();
-  }, []);
-
-  const eliminarConvenio = async (id: number) => {
-    console.log('ID a eliminar:', id);
-  
-    const { error } = await supabase.from('convenios').delete().eq('id', id);
-    
-    if (!error) {
-      alert('✅ Convenio eliminado exitosamente');
-      window.location.reload();
-    } else {
-      alert('❌ Error al eliminar el convenio');
-      console.error(error);
-    }
-  };
-  
+  const { convenios, loading, eliminarConvenio } = useConveniosActivos();
 
   if (loading) return <p>Cargando convenios...</p>;
   if (convenios.length === 0) return <p>No hay convenios activos.</p>;
@@ -80,7 +52,7 @@ function TablaConveniosActivos() {
         </tr>
       </thead>
       <tbody>
-        {convenios.map((c, i) => (
+        {convenios.map((c: Convenio, i: number) => (
           <tr key={i} className="text-center">
             <td className="px-4 py-2 border">{c.nombre_padre}</td>
             <td className="px-4 py-2 border">{c.nombre_alumno}</td>
@@ -103,55 +75,7 @@ function TablaConveniosActivos() {
 }
 
 function CrearConvenio() {
-  const router = useRouter();
-  const [form, setForm] = useState({
-    padre: '',
-    alumno: '',
-    salon: '',
-    correo: '',
-    telefono: '',
-  });
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    setError('');
-    setSuccess('');
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const { padre, alumno, salon, correo, telefono } = form;
-
-    if (!padre || !alumno || !salon || !correo || !telefono) {
-      setError('Por favor llena todos los campos.');
-      return;
-    }
-
-    const { error } = await supabase.from('convenios').insert([
-      {
-        nombre_padre: padre,
-        nombre_alumno: alumno,
-        salon,
-        correo,
-        telefono,
-      },
-    ]);
-
-    if (error) {
-      console.error(error);
-      setError('Hubo un error al crear el convenio.');
-      return;
-    }
-
-    setSuccess('¡Convenio creado con éxito!');
-    setForm({ padre: '', alumno: '', salon: '', correo: '', telefono: '' });
-
-    setTimeout(() => {
-      router.refresh();
-    }, 1500);
-  };
+  const { form, error, success, handleChange, handleSubmit } = useCrearConvenio();
 
   return (
     <div className="max-w-xl mx-auto p-6">

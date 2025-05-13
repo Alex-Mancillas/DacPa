@@ -1,8 +1,6 @@
 'use client'
 import React from 'react';
-import { useEffect, useState } from 'react'
-import { supabase } from '@/app/lib/supabaseclient'
-import jsPDF from 'jspdf'
+import { usePagos, Pago } from './usepagos';
 
 import {
   Tabs,
@@ -15,78 +13,16 @@ import {
 } from '@/app/components/ui/label'
 
 export default function PagosPage() {
-  const [pagos, setPagos] = useState<any[]>([])
-  const [mesSeleccionado, setMesSeleccionado] = useState('')
-  const [añoSeleccionado, setAñoSeleccionado] = useState('')
-  const [estudiantes, setEstudiantes] = useState<any[]>([])
-
-  useEffect(() => {
-    const fetchPagos = async () => {
-      const { data, error } = await supabase
-        .from('PagoColegiatura')
-        .select('*')
-        .order('fecha_pago', { ascending: false })
-
-      if (!error) setPagos(data || [])
-      else console.error('Error fetching pagos:', error)
-    }
-
-    const fetchEstudiantes = async () => {
-      const { data, error } = await supabase
-        .from('Alumno')
-        .select('id, nombre')
-
-      if (!error) setEstudiantes(data || [])
-      else console.error('Error fetching alumnos:', error)
-    }
-
-    fetchPagos()
-    fetchEstudiantes()
-  }, [])
-
-  const pagosFiltrados = pagos.filter((pago) => {
-    const fecha = new Date(pago.fecha_pago)
-    const mes = (fecha.getMonth() + 1).toString().padStart(2, '0')
-    const año = fecha.getFullYear().toString()
-    return (
-      (mesSeleccionado === '' || mes === mesSeleccionado) &&
-      (añoSeleccionado === '' || año === añoSeleccionado)
-    )
-  })
-
-  const fechaLimite = new Date();
-  fechaLimite.setDate(fechaLimite.getDate() - 60);
-
-  const alumnosDeudores = estudiantes.filter((alumno) => {
-    const pagosAlumno = pagos.filter((p) => p.id_alumno === alumno.id && p.estado?.toLowerCase().trim() === 'pagado');
-
-    if (pagosAlumno.length === 0) {
-      return true;
-    }
-
-    const ultimoPago = pagosAlumno.reduce((ultimo, actual) => {
-      return new Date(actual.fecha_pago) > new Date(ultimo.fecha_pago) ? actual : ultimo;
-    }, pagosAlumno[0])
-
-    return new Date(ultimoPago.fecha_pago) < fechaLimite;
-  });
-
-  const generarPDF = (pago: any) => {
-    const doc = new jsPDF()
-
-    doc.setFontSize(16)
-    doc.text('Recibo de Pago', 20, 20)
-
-    doc.setFontSize(12)
-    doc.text(`Fecha de Pago: ${pago.fecha_pago}`, 20, 40)
-    doc.text(`Concepto: ${pago.concepto}`, 20, 50)
-    doc.text(`ID Estudiante: ${pago.id_alumno}`, 20, 60)
-    doc.text(`Monto: $${pago.monto?.toFixed(2) || '0.00'}`, 20, 70)
-    doc.text(`Método de Pago: ${pago.metodo_pago}`, 20, 80)
-    doc.text(`Estado: ${pago.estado}`, 20, 90)
-
-    doc.save(`pago_${pago.id_alumno}_${pago.fecha_pago}.pdf`)
-  }
+  const {
+    pagosFiltrados,
+    mesSeleccionado,
+    setMesSeleccionado,
+    añoSeleccionado,
+    setAñoSeleccionado,
+    alumnosDeudores,
+    generarPDF,
+    obtenerUltimoPagoAlumno
+  } = usePagos();
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
@@ -136,7 +72,7 @@ export default function PagosPage() {
                 </tr>
               </thead>
               <tbody>
-                {pagosFiltrados.length > 0 ? pagosFiltrados.map((pago, index) => (
+                {pagosFiltrados.length > 0 ? pagosFiltrados.map((pago: Pago, index: number) => (
                   <tr key={index} className="text-gray-800">
                     <td className="px-4 py-2 border">{pago.fecha_pago}</td>
                     <td className="px-4 py-2 border">{pago.concepto}</td>
@@ -172,8 +108,7 @@ export default function PagosPage() {
               </thead>
               <tbody>
                 {alumnosDeudores.map((alumno, index) => {
-                  const pagosAlumno = pagos.filter(p => p.id_alumno === alumno.id && p.estado?.toLowerCase() === 'pagado')
-                  const ultimoPago = pagosAlumno.sort((a, b) => new Date(b.fecha_pago).getTime() - new Date(a.fecha_pago).getTime())[0]
+                  const ultimoPago = obtenerUltimoPagoAlumno(alumno.id);
                   return (
                     <tr key={index}>
                       <td className="px-4 py-2 border">{alumno.nombre}</td>
