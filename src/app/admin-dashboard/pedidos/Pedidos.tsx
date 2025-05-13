@@ -1,7 +1,21 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabaseclient";
-import TablaPedidos from "./TablaPedidos"; // ✅ Importa el componente modular
+import TablaPedidos from "./TablaPedidos"; // ✅ Import correcto
+
+interface Articulo {
+  nombre: string;
+  descripcion: string;
+}
+
+interface PedidoArticulo {
+  cantidad: number;
+  Articulo?: Articulo;
+}
+
+interface Alumno {
+  nombre: string;
+}
 
 interface Pedido {
   id_pedido: number;
@@ -9,16 +23,8 @@ interface Pedido {
   fecha: string;
   total: number;
   estado: string;
-  Alumno?: {
-    nombre: string;
-  };
-  articulos?: {
-    cantidad: number;
-    Articulo?: {
-      nombre: string;
-      descripcion: string;
-    };
-  }[];
+  Alumno?: Alumno;
+  articulos?: PedidoArticulo[];
 }
 
 const tabs = [
@@ -56,11 +62,11 @@ export default function Pedidos() {
         `);
 
       if (error) {
-        console.error("Error al obtener pedidos:", error);
+        console.error("Error al obtener pedidos:", error.message);
         return;
       }
 
-      const pedidosFormateados = data.map((pedido: any) => ({
+      const pedidosFormateados = data.map((pedido: any): Pedido => ({
         ...pedido,
         Alumno: Array.isArray(pedido.Alumno) ? pedido.Alumno[0] : pedido.Alumno,
         articulos: Array.isArray(pedido.articulos)
@@ -84,15 +90,13 @@ export default function Pedidos() {
       .eq("id_pedido", id_pedido);
 
     if (error) {
-      console.error("Error al actualizar estado:", error);
-      alert("Ocurrió un error al actualizar el estado.");
+      console.error("Error al actualizar estado:", error.message);
+      alert("❌ Ocurrió un error al actualizar el estado.");
       return;
     }
 
     setPedidos((prev) =>
-      prev.map((p) =>
-        p.id_pedido === id_pedido ? { ...p, estado: nuevoEstado } : p
-      )
+      prev.map((p) => (p.id_pedido === id_pedido ? { ...p, estado: nuevoEstado } : p))
     );
 
     alert(`✅ Estado del pedido #${id_pedido} actualizado a "${nuevoEstado}".`);
@@ -104,9 +108,7 @@ export default function Pedidos() {
 
   return (
     <div className="p-6 rounded-xl border border-gray-300 shadow-sm bg-white">
-      <h2 className="text-3xl font-bold text-pink-700 mb-6 text-center">
-        Gestión de Pedidos
-      </h2>
+      <h2 className="text-3xl font-bold text-pink-700 mb-6 text-center">Gestión de Pedidos</h2>
 
       <div className="flex flex-wrap gap-4 justify-center mb-6">
         {tabs.map((tab) => (
@@ -124,7 +126,6 @@ export default function Pedidos() {
         ))}
       </div>
 
-      {/* ✅ Aquí usamos el componente modular */}
       <TablaPedidos
         pedidos={pedidosFiltrados}
         actualizado={actualizado}
